@@ -4,11 +4,11 @@
 /tmp
 /out-tsc
 /bazel-out
-
+bin/
 obj/
 
 # Node
-/node_modules
+node_modules/
 npm-debug.log
 yarn-error.log
 
@@ -20,6 +20,9 @@ yarn-error.log
 *.launch
 .settings/
 *.sublime-workspace
+.vs/
+*.user
+*.suo
 
 # Visual Studio Code
 .vscode/*
@@ -30,7 +33,7 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-/.angular/cache
+.angular/
 .sass-cache/
 /connect.lock
 /coverage
@@ -42,4 +45,15 @@ testem.log
 .DS_Store
 Thumbs.db
 
+# Build indexes
 *.vsidx
+
+# Uploads
+Uploads/
+
+# Publish profiles
+*.pubxml
+
+# Logs
+logs/
+*.log

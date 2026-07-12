@@ -65,7 +65,19 @@ builder.Services.AddAntiforgery(options =>
     options.HeaderName = "X-CSRF-TOKEN";
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
+
+app.UseCors();
 
 if (app.Environment.IsDevelopment())
 {
@@ -281,6 +293,28 @@ app.MapGet("/log", async (HttpContext context, [FromServices] IConfiguration con
     {
         WriteIndented = true
     });
+});
+
+app.MapPost("/complaint-details", ([FromBody] PublicComplaintData complaintData, [FromServices] ILog log) =>
+{
+    log.Info("Received complaint details submission.");
+    return Results.Ok(complaintData);
+}).DisableAntiforgery();
+
+app.MapGet("/monthly-report", ([FromServices] ILog log) =>
+{
+    log.Info("Someone accessed /monthly-report endpoint.");
+
+    var report = new List<MonthlyComplaintReport>
+    {
+        new MonthlyComplaintReport { Department = "מחלקה אזרחית", CurrentMonthCount = 45, PreviousMonthCount = 38, SameMonthLastYearCount = 30 },
+        new MonthlyComplaintReport { Department = "מחלקה פלילית", CurrentMonthCount = 32, PreviousMonthCount = 29, SameMonthLastYearCount = 25 },
+        new MonthlyComplaintReport { Department = "מחלקה מנהלית", CurrentMonthCount = 18, PreviousMonthCount = 22, SameMonthLastYearCount = 15 },
+        new MonthlyComplaintReport { Department = "הוצאה לפועל", CurrentMonthCount = 56, PreviousMonthCount = 50, SameMonthLastYearCount = 42 },
+        new MonthlyComplaintReport { Department = "בית דין לעבודה", CurrentMonthCount = 12, PreviousMonthCount = 15, SameMonthLastYearCount = 10 }
+    };
+
+    return Results.Ok(new { reportMonth = DateTime.Now.ToString("yyyy-MM"), data = report });
 });
 
 app.MapPost("/send-email", async (EmailRequest request) =>

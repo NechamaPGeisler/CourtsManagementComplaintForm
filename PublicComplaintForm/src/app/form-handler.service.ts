@@ -52,7 +52,7 @@ export class FormHandlerService
 			}),
 
 			step3: this.fb.group({
-				contactDescription: ['', Validators.required],
+				contactDescription: ['', [Validators.required, Validators.maxLength(7000)]],
 				courtCaseNumber: ['', Validators.pattern('[0-9]+')],
 				courthouse: ['']
 			})

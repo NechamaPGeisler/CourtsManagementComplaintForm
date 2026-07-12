@@ -1,6 +1,7 @@
 ﻿using PublicComplaintForm_API.Models;
 using Microsoft.Data.SqlClient;
 using System.Linq;
+using System.Net.Http.Json;
 using Dapper;
 using Microsoft.SqlServer.Server;
 using log4net;
@@ -43,7 +44,17 @@ namespace PublicComplaintForm_API.Services
 
         public async Task<List<Court>> FetchCourtList()
         {
-            return new List<Court>();
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetFromJsonAsync<DataGovResponse>("https://data.gov.il/api/3/action/datastore_search?resource_id=5f8cff43-30fb-449b-96b1-280b2aafb2c3&limit=120");
+
+            if (response?.result?.records == null)
+                return new List<Court>();
+
+            return response.result.records.Select(r => new Court
+            {
+                CourtId = Guid.NewGuid(),
+                CourtName = r.court_name?.Trim() ?? string.Empty
+            }).ToList();
         }
 
         public async Task<Guid> InsertContact(PublicComplaintData formData)

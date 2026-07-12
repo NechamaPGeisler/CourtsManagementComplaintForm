@@ -25,19 +25,10 @@ export class ContactDetailsComponent implements OnInit
 				private courtHandlerService: CourtHandlerService) {}
 
 	textAreaRemainingCharacters: string = "7000 תווים נותרו";
+	isOverLimit: boolean = false;
 
 	selectedCourt: string | undefined = undefined;
-	courtsList: any = [
-		'בית משפט א',
-		'בית משפט ב',
-		'בית משפט ג',
-		'בית משפט ד',
-		'בית משפט ה',
-		'בית משפט ו',
-		'בית משפט ז',
-		'בית משפט ח',
-		'בית משפט ט',
-	]
+	courtsList: any[] = [];
 
 	form: any;
 	currentPage = "step3";
@@ -45,44 +36,30 @@ export class ContactDetailsComponent implements OnInit
 	async ngOnInit() 
 	{
 		this.form = this.formBuilder.group({
-			contactDescription: ['', Validators.required],
-			courtCaseNumber: [''],
+			contactDescription: ['', [Validators.required, Validators.maxLength(7000)]],
+			courtCaseNumber: ['', Validators.pattern('[0-9]+')],
 			courthouse: ['']
 		});
-		//this.form = this.formHandlerService.getStepValues('3');
 
 		(await this.courtHandlerService.getCourtsList()).subscribe({
 			next: (data: any) => {
 				this.courtsList = data.courtsList;
-
-				console.log(data);
 			},
 			error: (error: any) => {
 				console.log(error);
-			},
-			complete: () => {
-				
 			}
-		})
+		});
 
 		this.updateFormGroup();
 
 		const textArea = document.getElementById('contact-description-textarea') as HTMLTextAreaElement;
-		const currentValue = textArea.value;
-
-		const lengthRemaining = 7000 - currentValue.length;
-
-		this.textAreaRemainingCharacters = `${lengthRemaining} תווים נותרו`;
-
-		if(lengthRemaining < 0)
+		if(textArea)
 		{
-			textArea.value = currentValue.substring(0, 7000);
-			this.textAreaRemainingCharacters = `0 תווים נותרו`;
-			this.textAreaRemainingCharacters = `0 תווים נותרו`;
-			console.log("Zero tavim.");
+			const currentValue = textArea.value;
+			const lengthRemaining = 7000 - currentValue.length;
+			this.textAreaRemainingCharacters = `${lengthRemaining} תווים נותרו`;
+			this.isOverLimit = lengthRemaining < 0;
 		}
-
-		
 	}
 
 	ngAfterViewInit(): void
@@ -103,14 +80,10 @@ export class ContactDetailsComponent implements OnInit
 
 	GoToNextStep()
 	{
-		console.log(this.form.get('courthouse').value);
 		this.formHandlerService.updateStepFields('3', this.form);
-		//this.form = this.formHandlerService.getStepValues('3');
 
 		if(!this.form.valid)
 		{
-			console.log(this.form.errors);
-
 			Object.keys(this.form.controls).forEach(field => {
 				const control = this.form.get(field);
 				control?.markAsTouched({ onlySelf: true });
@@ -155,10 +128,12 @@ export class ContactDetailsComponent implements OnInit
 		const lengthRemaining = 7000 - currentValue.length;
 
 		this.textAreaRemainingCharacters = `${lengthRemaining} תווים נותרו`;
+		this.isOverLimit = lengthRemaining < 0;
 
 		if(lengthRemaining < 0)
 		{
 			textArea.value = currentValue.substring(0, 7000);
+			this.form.get('contactDescription')?.setValue(textArea.value);
 			this.textAreaRemainingCharacters = `0 תווים נותרו`;
 		}
 	}

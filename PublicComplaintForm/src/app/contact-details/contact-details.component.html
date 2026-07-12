@@ -9,6 +9,47 @@
 
     <div class="form-container" [formGroup]="form">
 
+        <div class="description-text-container">
+
+            <img src="description-icon.svg" alt="אייקון נורה - המסמל אזור הסבר"/>
+
+            <span class="description-text">יש לכלול תיאור נושא ומהות הפניה. יש לנסח באופן תמציתי וברור את מה שטוענים או מבקשים, תוך ציון פרטים רלוונטיים לצורך טיפול בפניה ומועדים של האירועים בהם עוסקת הפניה.</span>
+
+        </div>
+
+        <div class="form-field-container textarea-container">
+            <div class="dot-row">
+                <label for="contact-description-textarea" class="form-field-name">מהות הפניה</label>
+            </div>
+            <textarea id="contact-description-textarea" formControlName="contactDescription" (input)="OnTextAreaChanged($event)" [ngClass]="{'error-field': form.controls['contactDescription'].errors?.['required'] && form.controls['contactDescription'].touched}"></textarea>
+
+            <div class="character-counter-mark">
+                <p class="character-counter-text" *ngIf="!form.controls['contactDescription'].errors?.['required'] || !form.controls['contactDescription'].touched" [ngClass]="{'over-limit': isOverLimit}">{{textAreaRemainingCharacters}}</p>
+                <p class="validation-text" *ngIf="form.controls['contactDescription'].errors?.['required'] && form.controls['contactDescription'].touched"><img src="validation-mark.svg"/> שדה חובה</p>
+            </div>
+        </div>
+
+        <div class="form-row">
+
+            <div class="form-field-container">
+                <label for="court-case-number" class="form-field-name">מספר תיק בית משפט</label>
+                <input id="court-case-number" formControlName="courtCaseNumber" value="" [ngClass]="{'error-field': form.controls['courtCaseNumber'].errors?.['pattern'] && form.controls['courtCaseNumber'].touched}"/>
+
+                <div *ngIf="form.controls['courtCaseNumber'].errors?.['pattern'] && form.controls['courtCaseNumber'].touched" class="validation-mark">
+                    <img src="validation-mark.svg"/>
+                    <p class="validation-text">יש להזין מספרים בלבד</p>
+                </div>
+            </div>
+
+            <div class="form-field-container dropdown-element">
+                <label class="form-field-name">בית המשפט</label>
+                <mat-select (selectionChange)="OnCourtSelectionChanged($event)" [(value)]="selectedCourt">
+                    <mat-option *ngFor="let court of courtsList" [value]="court.courtName">{{court.courtName}}</mat-option>
+                </mat-select>
+            </div>
+
+        </div>
+
     </div>
 
     <div class="button-container">
